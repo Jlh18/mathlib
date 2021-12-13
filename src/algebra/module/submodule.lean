@@ -46,8 +46,11 @@ namespace submodule
 
 variables [semiring R] [add_comm_monoid M] [module R M]
 
-instance : set_like (submodule R M) M :=
-⟨submodule.carrier, λ p q h, by cases p; cases q; congr'⟩
+instance : add_submonoid_class (submodule R M) M :=
+{ coe := submodule.carrier,
+  coe_injective' := λ p q h, by cases p; cases q; congr',
+  zero_mem := zero_mem',
+  add_mem := add_mem' }
 
 @[simp] theorem mem_to_add_submonoid (p : submodule R M) (x : M) : x ∈ p.to_add_submonoid ↔ x ∈ p :=
 iff.rfl
@@ -132,28 +135,25 @@ variables {r : R} {x y : M}
 variables (p)
 @[simp] lemma mem_carrier : x ∈ p.carrier ↔ x ∈ (p : set M) := iff.rfl
 
-@[simp] lemma zero_mem : (0 : M) ∈ p := p.zero_mem'
-
-lemma add_mem (h₁ : x ∈ p) (h₂ : y ∈ p) : x + y ∈ p := p.add_mem' h₁ h₂
+protected lemma zero_mem : (0 : M) ∈ p := zero_mem _
+protected lemma add_mem (h₁ : x ∈ p) (h₂ : y ∈ p) : x + y ∈ p := add_mem h₁ h₂
 
 lemma smul_mem (r : R) (h : x ∈ p) : r • x ∈ p := p.smul_mem' r h
 lemma smul_of_tower_mem [has_scalar S R] [has_scalar S M] [is_scalar_tower S R M]
   (r : S) (h : x ∈ p) : r • x ∈ p :=
 p.to_sub_mul_action.smul_of_tower_mem r h
 
-lemma sum_mem {t : finset ι} {f : ι → M} : (∀c∈t, f c ∈ p) → (∑ i in t, f i) ∈ p :=
-p.to_add_submonoid.sum_mem
+protected lemma sum_mem {t : finset ι} {f : ι → M} : (∀c∈t, f c ∈ p) → (∑ i in t, f i) ∈ p :=
+sum_mem
 
 lemma sum_smul_mem {t : finset ι} {f : ι → M} (r : ι → R)
     (hyp : ∀ c ∈ t, f c ∈ p) : (∑ i in t, r i • f i) ∈ p :=
-submodule.sum_mem _ (λ i hi, submodule.smul_mem  _ _ (hyp i hi))
+sum_mem (λ i hi, smul_mem _ _ (hyp i hi))
 
 @[simp] lemma smul_mem_iff' [group G] [mul_action G M] [has_scalar G R] [is_scalar_tower G R M]
   (g : G) : g • x ∈ p ↔ x ∈ p :=
 p.to_sub_mul_action.smul_mem_iff' g
 
-instance : has_add p := ⟨λx y, ⟨x.1 + y.1, add_mem _ x.2 y.2⟩⟩
-instance : has_zero p := ⟨⟨0, zero_mem _⟩⟩
 instance : inhabited p := ⟨0⟩
 instance [has_scalar S R] [has_scalar S M] [is_scalar_tower S R M] :
   has_scalar S p := ⟨λ c x, ⟨c • x.1, smul_of_tower_mem _ c x.2⟩⟩
@@ -183,9 +183,6 @@ variables {p}
 @[simp] lemma coe_mem (x : p) : (x : M) ∈ p := x.2
 
 variables (p)
-
-instance : add_comm_monoid p :=
-{ add := (+), zero := 0, .. p.to_add_submonoid.to_add_comm_monoid }
 
 instance module' [semiring S] [has_scalar S R] [module S M] [is_scalar_tower S R M] : module S p :=
 by refine {smul := (•), ..p.to_sub_mul_action.mul_action', ..};
