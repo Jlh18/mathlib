@@ -174,19 +174,22 @@ protected lemma nonempty : (p : set M).nonempty := ⟨0, p.zero_mem⟩
 variables {p}
 @[simp, norm_cast] lemma coe_eq_zero {x : p} : (x : M) = 0 ↔ x = 0 :=
 (set_like.coe_eq_coe : (x : M) = (0 : p) ↔ x = 0)
-@[simp, norm_cast] lemma coe_add (x y : p) : (↑(x + y) : M) = ↑x + ↑y := rfl
-@[simp, norm_cast] lemma coe_zero : ((0 : p) : M) = 0 := rfl
+protected lemma coe_add (x y : p) : (↑(x + y) : M) = ↑x + ↑y := add_submonoid_class.coe_add _ _ _
+protected lemma coe_zero : ((0 : p) : M) = 0 := add_submonoid_class.coe_zero _
 @[norm_cast] lemma coe_smul (r : R) (x : p) : ((r • x : p) : M) = r • ↑x := rfl
 @[simp, norm_cast] lemma coe_smul_of_tower [has_scalar S R] [has_scalar S M] [is_scalar_tower S R M]
   (r : S) (x : p) : ((r • x : p) : M) = r • ↑x := rfl
 @[simp, norm_cast] lemma coe_mk (x : M) (hx : x ∈ p) : ((⟨x, hx⟩ : p) : M) = x := rfl
-@[simp] lemma coe_mem (x : p) : (x : M) ∈ p := x.2
+@[simp] lemma coe_mem (x : p) : (x : M) ∈ p := set_like.coe_mem _
 
 variables (p)
 
 instance module' [semiring S] [has_scalar S R] [module S M] [is_scalar_tower S R M] : module S p :=
 by refine {smul := (•), ..p.to_sub_mul_action.mul_action', ..};
-   { intros, apply set_coe.ext, simp [smul_add, add_smul, mul_smul] }
+   { intros, apply set_coe.ext,
+     simp only [smul_add, add_smul, smul_zero, zero_smul, mul_smul, coe_smul_of_tower,
+                add_submonoid_class.coe_add, add_submonoid_class.coe_zero] }
+
 instance : module R p := p.module'
 
 instance no_zero_smul_divisors [no_zero_smul_divisors R M] : no_zero_smul_divisors R p :=
@@ -275,7 +278,12 @@ variables {module_M : module R M}
 variables (p p' : submodule R M)
 variables {r : R} {x y : M}
 
-lemma neg_mem (hx : x ∈ p) : -x ∈ p := p.to_sub_mul_action.neg_mem hx
+instance [module R M] : add_subgroup_class (submodule R M) M :=
+{ coe := submodule.carrier,
+  neg_mem := λ p x, p.to_sub_mul_action.neg_mem,
+  .. submodule.add_submonoid_class }
+
+protected lemma neg_mem (hx : x ∈ p) : -x ∈ p := neg_mem hx
 
 /-- Reinterpret a submodule as an additive subgroup. -/
 def to_add_subgroup : add_subgroup M :=
@@ -301,22 +309,12 @@ to_add_subgroup_strict_mono.monotone
 
 omit module_M
 
-lemma sub_mem : x ∈ p → y ∈ p → x - y ∈ p := p.to_add_subgroup.sub_mem
-
-@[simp] lemma neg_mem_iff : -x ∈ p ↔ x ∈ p := p.to_add_subgroup.neg_mem_iff
-
-lemma add_mem_iff_left : y ∈ p → (x + y ∈ p ↔ x ∈ p) := p.to_add_subgroup.add_mem_cancel_right
-
-lemma add_mem_iff_right : x ∈ p → (x + y ∈ p ↔ y ∈ p) := p.to_add_subgroup.add_mem_cancel_left
-
-instance : has_neg p := ⟨λx, ⟨-x.1, neg_mem _ x.2⟩⟩
-
-@[simp, norm_cast] lemma coe_neg (x : p) : ((-x : p) : M) = -x := rfl
-
-instance : add_comm_group p :=
-{ add := (+), zero := 0, neg := has_neg.neg, ..p.to_add_subgroup.to_add_comm_group }
-
-@[simp, norm_cast] lemma coe_sub (x y : p) : (↑(x - y) : M) = ↑x - ↑y := rfl
+protected lemma sub_mem : x ∈ p → y ∈ p → x - y ∈ p := sub_mem
+protected lemma neg_mem_iff : -x ∈ p ↔ x ∈ p := neg_mem_iff
+protected lemma add_mem_iff_left : y ∈ p → (x + y ∈ p ↔ x ∈ p) := add_mem_cancel_right
+protected lemma add_mem_iff_right : x ∈ p → (x + y ∈ p ↔ y ∈ p) := add_mem_cancel_left
+protected lemma coe_neg (x : p) : ((-x : p) : M) = -x := add_subgroup_class.coe_neg _
+protected lemma coe_sub (x y : p) : (↑(x - y) : M) = ↑x - ↑y := add_subgroup_class.coe_sub _ _
 
 end add_comm_group
 
