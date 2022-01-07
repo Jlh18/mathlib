@@ -135,7 +135,7 @@ variables {r : R} {x y : M}
 variables (p)
 @[simp] lemma mem_carrier : x ∈ p.carrier ↔ x ∈ (p : set M) := iff.rfl
 
-protected lemma zero_mem : (0 : M) ∈ p := zero_mem _
+@[simp] protected lemma zero_mem : (0 : M) ∈ p := zero_mem _
 protected lemma add_mem (h₁ : x ∈ p) (h₂ : y ∈ p) : x + y ∈ p := add_mem h₁ h₂
 
 lemma smul_mem (r : R) (h : x ∈ p) : r • x ∈ p := p.smul_mem' r h
