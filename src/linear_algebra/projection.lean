@@ -106,11 +106,13 @@ end
 
 @[simp] lemma prod_equiv_of_is_compl_symm_apply_left (h : is_compl p q) (x : p) :
   (prod_equiv_of_is_compl p q h).symm x = (x, 0) :=
-(prod_equiv_of_is_compl p q h).symm_apply_eq.2 $ by simp
+(prod_equiv_of_is_compl p q h).symm_apply_eq.2 $
+by simp only [coe_prod_equiv_of_is_compl', add_submonoid_class.coe_zero, add_zero]
 
 @[simp] lemma prod_equiv_of_is_compl_symm_apply_right (h : is_compl p q) (x : q) :
   (prod_equiv_of_is_compl p q h).symm x = (0, x) :=
-(prod_equiv_of_is_compl p q h).symm_apply_eq.2 $ by simp
+(prod_equiv_of_is_compl p q h).symm_apply_eq.2 $
+by simp only [coe_prod_equiv_of_is_compl', add_submonoid_class.coe_zero, zero_add]
 
 @[simp] lemma prod_equiv_of_is_compl_symm_apply_fst_eq_zero (h : is_compl p q) {x : E} :
   ((prod_equiv_of_is_compl p q h).symm x).1 = 0 ↔ x ∈ q :=
@@ -143,7 +145,8 @@ variables {p q}
 
 @[simp] lemma linear_proj_of_is_compl_apply_left (h : is_compl p q) (x : p) :
   linear_proj_of_is_compl p q h x = x :=
-by simp [linear_proj_of_is_compl]
+by simp only [linear_proj_of_is_compl, linear_map.comp_apply, linear_equiv.coe_coe,
+  prod_equiv_of_is_compl_symm_apply_left, linear_map.fst_apply]
 
 @[simp] lemma linear_proj_of_is_compl_range (h : is_compl p q) :
   (linear_proj_of_is_compl p q h).range = ⊤ :=
@@ -208,11 +211,15 @@ variables {p q}
 
 @[simp] lemma of_is_compl_left_apply
   (h : is_compl p q) {φ : p →ₗ[R] F} {ψ : q →ₗ[R] F} (u : p) :
-  of_is_compl h φ ψ (u : E) = φ u := by simp [of_is_compl]
+  of_is_compl h φ ψ (u : E) = φ u :=
+by simp only [of_is_compl, linear_map.comp_apply, linear_equiv.coe_coe,
+  prod_equiv_of_is_compl_symm_apply_left, coprod_apply, _root_.map_zero, add_zero]
 
 @[simp] lemma of_is_compl_right_apply
   (h : is_compl p q) {φ : p →ₗ[R] F} {ψ : q →ₗ[R] F} (v : q) :
-  of_is_compl h φ ψ (v : E) = ψ v := by simp [of_is_compl]
+  of_is_compl h φ ψ (v : E) = ψ v :=
+by simp only [of_is_compl, linear_map.comp_apply, linear_equiv.coe_coe,
+  prod_equiv_of_is_compl_symm_apply_right, coprod_apply, _root_.map_zero, zero_add]
 
 lemma of_is_compl_eq (h : is_compl p q)
   {φ : p →ₗ[R] F} {ψ : q →ₗ[R] F} {χ : E →ₗ[R] F}
@@ -221,7 +228,7 @@ lemma of_is_compl_eq (h : is_compl p q)
 begin
   ext x,
   obtain ⟨_, _, rfl, _⟩ := exists_unique_add_of_is_compl h x,
-  simp [of_is_compl, hφ, hψ]
+  simp only [map_add, of_is_compl_left_apply, of_is_compl_right_apply, hφ, hψ]
 end
 
 lemma of_is_compl_eq' (h : is_compl p q)
@@ -237,14 +244,18 @@ of_is_compl_eq _ (λ _, rfl) (λ _, rfl)
 @[simp] lemma of_is_compl_add (h : is_compl p q)
   {φ₁ φ₂ : p →ₗ[R] F} {ψ₁ ψ₂ : q →ₗ[R] F} :
   of_is_compl h (φ₁ + φ₂) (ψ₁ + ψ₂) = of_is_compl h φ₁ ψ₁ + of_is_compl h φ₂ ψ₂ :=
-of_is_compl_eq _ (by simp) (by simp)
+of_is_compl_eq _
+  (λ u, by simp only [linear_map.add_apply, of_is_compl_left_apply])
+  (λ u, by simp only [linear_map.add_apply, of_is_compl_right_apply])
 
 @[simp] lemma of_is_compl_smul
   {R : Type*} [comm_ring R] {E : Type*} [add_comm_group E] [module R E]
   {F : Type*} [add_comm_group F] [module R F] {p q : submodule R E}
   (h : is_compl p q) {φ : p →ₗ[R] F} {ψ : q →ₗ[R] F} (c : R) :
   of_is_compl h (c • φ) (c • ψ) = c • of_is_compl h φ ψ :=
-of_is_compl_eq _ (by simp) (by simp)
+of_is_compl_eq _
+  (λ u, by simp only [linear_map.smul_apply, of_is_compl_left_apply])
+  (λ u, by simp only [linear_map.smul_apply, of_is_compl_right_apply])
 
 section
 
@@ -274,7 +285,8 @@ def of_is_compl_prod_equiv {p q : submodule R₁ E} (h : is_compl p q) :
     begin
       intro φ, ext,
       obtain ⟨a, b, hab, _⟩ := exists_unique_add_of_is_compl h x,
-      rw [← hab], simp,
+      simp only [← hab, linear_map.to_fun_eq_coe, of_is_compl_prod_apply, map_add,
+        of_is_compl_left_apply, of_is_compl_right_apply, dom_restrict_apply],
     end, .. of_is_compl_prod h }
 
 end
@@ -286,7 +298,8 @@ begin
   have : x ∈ p ⊔ f.ker,
   { simp only [(is_compl_of_proj hf).sup_eq_top, mem_top] },
   rcases mem_sup'.1 this with ⟨x, y, rfl⟩,
-  simp [hf]
+  simp only [hf, map_add, linear_proj_of_is_compl_apply_left, linear_proj_of_is_compl_apply_right,
+      add_submonoid_class.coe_zero, add_zero, show f y = 0, from y.property]
 end
 
 /-- If `f : E →ₗ[R] F` and `g : E →ₗ[R] G` are two surjective linear maps and
