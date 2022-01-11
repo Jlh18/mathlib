@@ -598,8 +598,17 @@ linearly equivalent to the original submodule. See also `linear_equiv.submodule_
 computable version when `f` has an explicit inverse. -/
 noncomputable def equiv_map_of_injective (f : M →ₛₗ[σ₁₂] M₂) (i : injective f)
   (p : submodule R M) : p ≃ₛₗ[σ₁₂] p.map f :=
-{ map_add' := by { intros, simp, refl, },
-  map_smul' := by { intros, simp, refl, },
+{ map_add' := begin
+    intros,
+    simp only [map_add, equiv.to_fun_as_coe, add_submonoid_class.coe_add, equiv.set.image_apply],
+    refl
+  end,
+  map_smul' := begin
+    intros,
+    simp only [linear_map.map_smulₛₗ, equiv.to_fun_as_coe, submodule.coe_smul,
+               equiv.set.image_apply],
+    refl
+  end,
   ..(equiv.set.image f p i) }
 
 @[simp] lemma coe_equiv_map_of_injective_apply (f : M →ₛₗ[σ₁₂] M₂) (i : injective f)
