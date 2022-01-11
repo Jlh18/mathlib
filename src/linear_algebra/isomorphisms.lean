@@ -91,12 +91,14 @@ lemma quotient_inf_equiv_sup_quotient_symm_apply_left (p p' : submodule R M)
   (x : p ⊔ p') (hx : (x:M) ∈ p) :
   (quotient_inf_equiv_sup_quotient p p').symm (submodule.quotient.mk x) =
     submodule.quotient.mk ⟨x, hx⟩ :=
-(linear_equiv.symm_apply_eq _).2 $ by simp [of_le_apply]
+(linear_equiv.symm_apply_eq _).2 $
+by { cases x, simp only [quotient_inf_equiv_sup_quotient_apply_mk, of_le_apply, subtype.coe_mk] }
 
 @[simp] lemma quotient_inf_equiv_sup_quotient_symm_apply_eq_zero_iff {p p' : submodule R M}
   {x : p ⊔ p'} :
   (quotient_inf_equiv_sup_quotient p p').symm (submodule.quotient.mk x) = 0 ↔ (x:M) ∈ p' :=
-(linear_equiv.symm_apply_eq _).trans $ by simp [of_le_apply]
+(linear_equiv.symm_apply_eq _).trans $
+  by { simp only [_root_.map_zero, quotient.mk_eq_zero, mem_comap, subtype_apply] }
 
 lemma quotient_inf_equiv_sup_quotient_symm_apply_right (p p' : submodule R M) {x : p ⊔ p'}
   (hx : (x:M) ∈ p') :
