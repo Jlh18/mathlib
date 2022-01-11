@@ -404,7 +404,7 @@ def quotient_equiv_prod_of_le' (h_le : s ≤ t)
 /-- If `H ≤ K`, then `G/H ≃ G/K × K/H` nonconstructively.
 The constructive version is `quotient_equiv_prod_of_le'`. -/
 @[to_additive "If `H ≤ K`, then `G/H ≃ G/K × K/H` nonconstructively.
-The constructive version is `quotient_equiv_prod_of_le'`.", simps]
+The constructive version is `quotient_equiv_prod_of_le'`.", simps {rhs_md := semireducible}]
 noncomputable def quotient_equiv_prod_of_le (h_le : s ≤ t) :
   α ⧸ s ≃ (α ⧸ t) × (t ⧸ s.subgroup_of t) :=
 quotient_equiv_prod_of_le' h_le quotient.out' quotient.out_eq'
