@@ -239,7 +239,7 @@ lemma restrict_scalars_injective :
 This is a special case of `alg_hom.restrict_scalars` that can be helpful in elaboration. -/
 @[simp]
 def of_restrict_scalars (U : subalgebra S A) (f : U →ₐ[S] B) : U.restrict_scalars R →ₐ[R] B :=
-f.restrict_scalars R
+@@alg_hom.restrict_scalars R _ _ _ _ _ _ _ _ _ (subalgebra.is_scalar_tower U) _ f
 
 end semiring
 
