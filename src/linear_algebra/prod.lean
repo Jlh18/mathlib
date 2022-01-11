@@ -402,10 +402,10 @@ def fst : submodule R (M × M₂) := (⊥ : submodule R M₂).comap (linear_map.
 @[simps] def fst_equiv : submodule.fst R M M₂ ≃ₗ[R] M :=
 { to_fun := λ x, x.1.1,
   inv_fun := λ m, ⟨⟨m, 0⟩, by tidy⟩,
-  map_add' := by simp,
-  map_smul' := by simp,
-  left_inv := by tidy,
-  right_inv := by tidy, }
+  map_add' := λ _ _, rfl,
+  map_smul' := λ _ _, rfl,
+  left_inv := λ ⟨⟨x₁, x₂⟩, rfl⟩, rfl,
+  right_inv := λ x, rfl, }
 
 lemma fst_map_fst : (submodule.fst R M M₂).map (linear_map.fst R M M₂) = ⊤ :=
 by tidy
@@ -419,10 +419,10 @@ def snd : submodule R (M × M₂) := (⊥ : submodule R M).comap (linear_map.fst
 @[simps] def snd_equiv : submodule.snd R M M₂ ≃ₗ[R] M₂ :=
 { to_fun := λ x, x.1.2,
   inv_fun := λ n, ⟨⟨0, n⟩, by tidy⟩,
-  map_add' := by simp,
-  map_smul' := by simp,
-  left_inv := by tidy,
-  right_inv := by tidy, }
+  map_add' := λ _ _, rfl,
+  map_smul' := λ _ _, rfl,
+  left_inv := λ ⟨⟨x₁, x₂⟩, rfl⟩, rfl,
+  right_inv := λ x, rfl, }
 
 lemma snd_map_fst : (submodule.snd R M M₂).map (linear_map.fst R M M₂) = ⊥ :=
 by { tidy, exact 0, }
